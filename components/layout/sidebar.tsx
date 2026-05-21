@@ -53,7 +53,7 @@ export function Sidebar() {
         </div>
 
         {/* Nav */}
-        <nav className="mt-4 flex-1 space-y-1 px-3">
+        <nav className="mt-4 flex-1 space-y-1 overflow-y-auto px-3 pb-4">
           {navItems.map((item) => {
             const active = pathname === item.href;
             return (
@@ -64,6 +64,8 @@ export function Sidebar() {
                 className={`flex items-center gap-4 rounded-2xl px-4 py-3.5 text-sm font-bold transition ${
                   active
                     ? "bg-gmi-blue text-white shadow-lg shadow-gmi-blue/30"
+                    : item.href === "/configuracoes"
+                    ? "bg-white/8 text-orange-200 ring-1 ring-gmi-orange/25 hover:bg-white/12 hover:text-white"
                     : "text-blue-200/70 hover:bg-white/5 hover:text-white"
                 }`}
               >
