@@ -103,7 +103,10 @@ export const defaultAdminSettings: AdminSettings = {
 function loadLocal<T>(key: string, fallback: T) {
   if (typeof window === "undefined") return fallback;
   const raw = localStorage.getItem(key);
-  return raw ? ({ ...(fallback as object), ...(JSON.parse(raw) as object) } as T) : fallback;
+  if (!raw) return fallback;
+  const parsed = JSON.parse(raw) as T;
+  if (Array.isArray(fallback)) return (Array.isArray(parsed) ? parsed : fallback) as T;
+  return { ...(fallback as object), ...(parsed as object) } as T;
 }
 
 export function useStoredVehicles() {
@@ -151,9 +154,9 @@ export function saveAdminSettings(settings: AdminSettings) {
 }
 
 export function findStoredVehicle(vehicles: Vehicle[], id: string) {
-  return vehicles.find((item) => item.id === id);
+  return Array.isArray(vehicles) ? vehicles.find((item) => item.id === id) : undefined;
 }
 
 export function findStoredClient(clients: Client[], id: string) {
-  return clients.find((item) => item.id === id);
+  return Array.isArray(clients) ? clients.find((item) => item.id === id) : undefined;
 }
