@@ -1,7 +1,8 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { defaultAdminSettings, saveAdminSettings, useAdminSettings, type AdminSettings } from "@/lib/local-store";
+import { defaultAdminSettings, saveAdminSettings, useAdminSettings, useStoredVehicles, type AdminSettings } from "@/lib/local-store";
+import type { Vehicle } from "@/lib/types";
 
 const paymentDays = ["Segunda-feira", "Terça-feira", "Quarta-feira", "Quinta-feira", "Sexta-feira", "Sábado", "Domingo"];
 
@@ -19,19 +20,30 @@ const inputClass = "w-full rounded-2xl border border-slate-200 bg-slate-50 px-4 
 
 export default function ConfiguracoesPage() {
   const current = useAdminSettings();
+  const storedVehicles = useStoredVehicles();
   const [form, setForm] = useState<AdminSettings>(current);
+  const [vehicleForms, setVehicleForms] = useState<Vehicle[]>(storedVehicles);
   const [saved, setSaved] = useState(false);
 
   useEffect(() => {
     setForm(current);
   }, [current]);
 
+  useEffect(() => {
+    setVehicleForms(storedVehicles);
+  }, [storedVehicles]);
+
   function update<K extends keyof AdminSettings>(key: K, value: AdminSettings[K]) {
     setForm((prev) => ({ ...prev, [key]: value }));
   }
 
+  function updateVehicle(id: string, patch: Partial<Vehicle>) {
+    setVehicleForms((prev) => prev.map((vehicle) => (vehicle.id === id ? { ...vehicle, ...patch } : vehicle)));
+  }
+
   function apply() {
     saveAdminSettings(form);
+    localStorage.setItem("gmi-vehicles", JSON.stringify(vehicleForms));
     setSaved(true);
     window.setTimeout(() => setSaved(false), 2600);
   }
@@ -104,6 +116,40 @@ export default function ConfiguracoesPage() {
               <Field label="Cor destaque"><input type="color" className="h-14 w-full rounded-2xl border border-slate-200 bg-slate-50 p-2" value={form.accentColor} onChange={(e) => update("accentColor", e.target.value)} /></Field>
             </div>
           </Panel>
+
+          <Panel title="Configuração da frota" subtitle="Defina diária individual, disponibilidade, manutenção, KM e revisão por carro.">
+            <div className="space-y-4">
+              {vehicleForms.map((vehicle) => (
+                <div key={vehicle.id} className="rounded-[2rem] bg-slate-50 p-4 ring-1 ring-slate-100">
+                  <div className="flex flex-col gap-3 lg:flex-row lg:items-center lg:justify-between">
+                    <div>
+                      <p className="text-lg font-black text-slate-950">{vehicle.brand} {vehicle.model}</p>
+                      <p className="text-xs font-bold text-slate-500">{vehicle.plate} • {vehicle.year} • {vehicle.color}</p>
+                    </div>
+                    <div className="grid grid-cols-3 gap-2 text-center">
+                      <StatusButton active={vehicle.status === "disponivel"} label="Ativo" onClick={() => updateVehicle(vehicle.id, { status: "disponivel" })} />
+                      <StatusButton active={vehicle.status === "alugado"} label="Alugado" onClick={() => updateVehicle(vehicle.id, { status: "alugado" })} />
+                      <StatusButton active={vehicle.status === "manutencao"} label="Manutenção" onClick={() => updateVehicle(vehicle.id, { status: "manutencao" })} />
+                    </div>
+                  </div>
+                  <div className="mt-4 grid gap-3 md:grid-cols-4">
+                    <Field label="Valor diária"><input type="number" className={inputClass} value={vehicle.dailyRate} onChange={(e) => updateVehicle(vehicle.id, { dailyRate: Number(e.target.value) })} /></Field>
+                    <Field label="KM atual"><input type="number" className={inputClass} value={vehicle.currentKm} onChange={(e) => updateVehicle(vehicle.id, { currentKm: Number(e.target.value) })} /></Field>
+                    <Field label="Próxima revisão"><input type="number" className={inputClass} value={vehicle.nextRevisionKm} onChange={(e) => updateVehicle(vehicle.id, { nextRevisionKm: Number(e.target.value) })} /></Field>
+                    <Field label="Combustível"><input className={inputClass} value={vehicle.fuel} onChange={(e) => updateVehicle(vehicle.id, { fuel: e.target.value })} /></Field>
+                  </div>
+                  <div className="mt-3 rounded-2xl bg-white p-4 ring-1 ring-slate-100">
+                    <p className="text-xs font-black uppercase tracking-[0.16em] text-slate-500">Cenário aplicado</p>
+                    <p className="mt-1 text-sm font-semibold text-slate-600">
+                      {vehicle.status === "disponivel" && "Carro aparece disponível para locação, reserva e catálogo."}
+                      {vehicle.status === "alugado" && "Carro aparece ocupado/alugado e entra nos painéis operacionais."}
+                      {vehicle.status === "manutencao" && "Carro sai da disponibilidade e gera alerta de manutenção."}
+                    </p>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </Panel>
         </div>
 
         <aside className="h-fit space-y-6 lg:sticky lg:top-6">
@@ -154,4 +200,12 @@ function Toggle({ label, checked, onChange }: { label: string; checked: boolean;
 
 function PreviewRow({ label, value }: { label: string; value: string }) {
   return <div className="rounded-2xl bg-slate-50 p-4 ring-1 ring-slate-100"><p className="text-xs font-bold text-slate-400">{label}</p><p className="mt-1 font-black text-slate-950">{value}</p></div>;
+}
+
+function StatusButton({ active, label, onClick }: { active: boolean; label: string; onClick: () => void }) {
+  return (
+    <button type="button" onClick={onClick} className={`rounded-2xl px-3 py-2 text-xs font-black transition ${active ? "bg-gmi-blue text-white shadow-lg shadow-gmi-blue/20" : "bg-white text-slate-500 ring-1 ring-slate-200 hover:bg-slate-100"}`}>
+      {label}
+    </button>
+  );
 }
