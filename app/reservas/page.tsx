@@ -1,13 +1,8 @@
 "use client";
 
-import { useState, useMemo, useCallback } from "react";
-import {
-  vehicles,
-  rentals,
-  money,
-  getClientById,
-  getRentalByVehicleId,
-} from "@/lib/mock-data";
+import { useEffect, useState, useMemo, useCallback } from "react";
+import { rentals, money, getClientById, getRentalByVehicleId } from "@/lib/mock-data";
+import { useStoredVehicles } from "@/lib/local-store";
 import type { Vehicle, Rental } from "@/lib/types";
 
 /* ────────────────────── helpers ────────────────────── */
@@ -73,16 +68,21 @@ function statusBadge(status: Vehicle["status"]) {
    ═══════════════════════════════════════════════════════ */
 
 export default function ReservasPage() {
-  const [selectedVehicleId, setSelectedVehicleId] = useState<string>(vehicles[0].id);
+  const vehicles = useStoredVehicles();
+  const [selectedVehicleId, setSelectedVehicleId] = useState<string>(vehicles[0]?.id ?? "");
   const [currentMonth, setCurrentMonth] = useState(() => {
     const now = new Date();
     return { year: now.getFullYear(), month: now.getMonth() };
   });
   const [hoveredDay, setHoveredDay] = useState<number | null>(null);
 
+  useEffect(() => {
+    if (!selectedVehicleId && vehicles[0]) setSelectedVehicleId(vehicles[0].id);
+  }, [selectedVehicleId, vehicles]);
+
   const selectedVehicle = useMemo(
-    () => vehicles.find((v) => v.id === selectedVehicleId)!,
-    [selectedVehicleId]
+    () => vehicles.find((v) => v.id === selectedVehicleId) ?? vehicles[0],
+    [vehicles, selectedVehicleId]
   );
 
   const activeRental = useMemo(
@@ -130,6 +130,16 @@ export default function ReservasPage() {
     }
     return map;
   }, [selectedVehicleId, year, month, totalDays]);
+
+  if (!selectedVehicle) {
+    return (
+      <main className="min-h-screen bg-slate-50 p-6 text-slate-950">
+        <div className="rounded-[2rem] bg-white p-8 text-center shadow-card ring-1 ring-slate-100">
+          <p className="text-lg font-black text-slate-500">Nenhum veículo cadastrado.</p>
+        </div>
+      </main>
+    );
+  }
 
   const isMaintenance = selectedVehicle.status === "manutencao";
 

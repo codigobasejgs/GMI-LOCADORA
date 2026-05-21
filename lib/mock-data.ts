@@ -97,6 +97,7 @@ export const monthlyRevenue = [
 export const navItems: NavItem[] = [
   { label: "Dashboard", href: "/", icon: "📊" },
   { label: "Catálogo", href: "/catalogo", icon: "🚗" },
+  { label: "Cadastros", href: "/cadastros", icon: "🧾" },
   { label: "Reservas", href: "/reservas", icon: "📅" },
   { label: "Contratos", href: "/contratos", icon: "📄" },
   { label: "Checklist", href: "/checklist", icon: "✅" },

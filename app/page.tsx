@@ -1,8 +1,9 @@
 "use client";
 
 import Image from "next/image";
-import { useMemo, useState } from "react";
-import { vehicles as initialVehicles, rentals, today, money, getClientById } from "@/lib/mock-data";
+import { useEffect, useMemo, useState } from "react";
+import { rentals, today, money } from "@/lib/mock-data";
+import { findStoredClient, useStoredClients, useStoredVehicles } from "@/lib/local-store";
 import type { Vehicle } from "@/lib/types";
 
 function StatCard({ label, value, icon, tone }: { label: string; value: number | string; icon: string; tone?: "alert" | "success" }) {
@@ -46,9 +47,9 @@ function KmUpdater({ currentKm, onUpdate }: { currentKm: number; onUpdate: (km: 
   );
 }
 
-function VehicleCard({ vehicle, paid, onPay, onKmUpdate }: { vehicle: Vehicle; paid: boolean; onPay: () => void; onKmUpdate: (km: number) => void }) {
+function VehicleCard({ vehicle, paid, clients, onPay, onKmUpdate }: { vehicle: Vehicle; paid: boolean; clients: ReturnType<typeof useStoredClients>; onPay: () => void; onKmUpdate: (km: number) => void }) {
   const rental = rentals.find((r) => r.vehicleId === vehicle.id && r.status === "ativo");
-  const client = rental ? getClientById(rental.clientId) : null;
+  const client = rental ? findStoredClient(clients, rental.clientId) : null;
   const isDueToday = rental && rental.paymentDay === today && !paid;
   const isNearRevision = vehicle.nextRevisionKm - vehicle.currentKm <= 2000;
   const progress = Math.min(100, Math.round((vehicle.currentKm / vehicle.nextRevisionKm) * 100));
@@ -122,8 +123,14 @@ function VehicleCard({ vehicle, paid, onPay, onKmUpdate }: { vehicle: Vehicle; p
 }
 
 export default function DashboardPage() {
-  const [vehicleList, setVehicleList] = useState<Vehicle[]>(initialVehicles);
+  const storedVehicles = useStoredVehicles();
+  const storedClients = useStoredClients();
+  const [vehicleList, setVehicleList] = useState<Vehicle[]>(storedVehicles);
   const [paidIds, setPaidIds] = useState<Set<string>>(() => new Set());
+
+  useEffect(() => {
+    setVehicleList(storedVehicles);
+  }, [storedVehicles]);
 
   const summary = useMemo(() => {
     const rented = vehicleList.filter((v) => v.status === "alugado").length;
@@ -186,7 +193,7 @@ export default function DashboardPage() {
         </div>
         <div className="mt-5 grid gap-5 md:grid-cols-2 xl:grid-cols-3">
           {vehicleList.map((v) => (
-            <VehicleCard key={v.id} vehicle={v} paid={paidIds.has(v.id)} onPay={() => markAsPaid(v.id)} onKmUpdate={(km) => updateKm(v.id, km)} />
+            <VehicleCard key={v.id} vehicle={v} clients={storedClients} paid={paidIds.has(v.id)} onPay={() => markAsPaid(v.id)} onKmUpdate={(km) => updateKm(v.id, km)} />
           ))}
         </div>
       </section>

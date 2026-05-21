@@ -1,15 +1,9 @@
 "use client";
 
 import { useState, useMemo } from "react";
-import {
-  vehicles,
-  clients,
-  rentals,
-  money,
-  getClientById,
-  getVehicleById,
-} from "@/lib/mock-data";
-import type { Rental, Vehicle, Client } from "@/lib/types";
+import { rentals, money } from "@/lib/mock-data";
+import { findStoredClient, findStoredVehicle, useStoredClients, useStoredVehicles } from "@/lib/local-store";
+import type { Client, Rental, Vehicle } from "@/lib/types";
 
 /* ─── Constants ──────────────────────────────────────────── */
 const WEEKDAYS = [
@@ -78,9 +72,9 @@ function StatusBadge({ status }: { status: string }) {
   );
 }
 
-function ContractCard({ rental }: { rental: Rental }) {
-  const client = getClientById(rental.clientId);
-  const vehicle = getVehicleById(rental.vehicleId);
+function ContractCard({ rental, clients, vehicles }: { rental: Rental; clients: Client[]; vehicles: Vehicle[] }) {
+  const client = findStoredClient(clients, rental.clientId);
+  const vehicle = findStoredVehicle(vehicles, rental.vehicleId);
   const days = diffDays(rental.startDate, rental.endDate);
 
   return (
@@ -222,6 +216,8 @@ function ContractPreview({
 
 /* ─── Main Page ──────────────────────────────────────────── */
 export default function ContratosPage() {
+  const clients = useStoredClients();
+  const vehicles = useStoredVehicles();
   const [showForm, setShowForm] = useState(false);
 
   // Form state
@@ -235,10 +231,10 @@ export default function ContratosPage() {
 
   // Derived data
   const selectedClient = selectedClientId
-    ? getClientById(selectedClientId)
+    ? findStoredClient(clients, selectedClientId)
     : undefined;
   const selectedVehicle = selectedVehicleId
-    ? getVehicleById(selectedVehicleId)
+    ? findStoredVehicle(vehicles, selectedVehicleId)
     : undefined;
 
   const availableVehicles = useMemo(
@@ -611,7 +607,7 @@ export default function ContratosPage() {
         ) : (
           <div className="mt-5 grid gap-5 md:grid-cols-2 xl:grid-cols-3">
             {activeContracts.map((r) => (
-              <ContractCard key={r.id} rental={r} />
+              <ContractCard key={r.id} rental={r} clients={clients} vehicles={vehicles} />
             ))}
           </div>
         )}
@@ -635,7 +631,7 @@ export default function ContratosPage() {
           </div>
           <div className="mt-5 grid gap-5 md:grid-cols-2 xl:grid-cols-3">
             {finishedContracts.map((r) => (
-              <ContractCard key={r.id} rental={r} />
+              <ContractCard key={r.id} rental={r} clients={clients} vehicles={vehicles} />
             ))}
           </div>
         </section>

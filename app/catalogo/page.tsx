@@ -2,7 +2,8 @@
 
 import Image from "next/image";
 import { useMemo, useState, useCallback, useEffect, useRef } from "react";
-import { vehicles, money } from "@/lib/mock-data";
+import { money } from "@/lib/mock-data";
+import { useStoredVehicles } from "@/lib/local-store";
 import type { Vehicle, VehicleStatus } from "@/lib/types";
 
 /* ─── Status helpers ─────────────────────────────────────── */
@@ -259,6 +260,7 @@ function VehicleCard({ vehicle, onClick }: { vehicle: Vehicle; onClick: () => vo
 
 /* ─── Page Component ─────────────────────────────────────── */
 export default function CatalogoPage() {
+  const vehicles = useStoredVehicles();
   const [activeFilter, setActiveFilter] = useState<FilterKey>("todos");
   const [selectedVehicle, setSelectedVehicle] = useState<Vehicle | null>(null);
 
