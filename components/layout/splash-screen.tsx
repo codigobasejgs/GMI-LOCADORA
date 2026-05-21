@@ -36,7 +36,7 @@ export function SplashScreen() {
         </div>
 
         <p className="splash-kicker mt-8 text-xs font-black uppercase tracking-[0.55em] text-orange-200">{settings.tradeName}</p>
-        <h1 className="splash-title mt-3 text-3xl font-black tracking-tight text-white sm:text-5xl">Gestão de frota premium</h1>
+        <h1 className="splash-title mt-3 text-3xl font-black tracking-tight text-white sm:text-5xl">{settings.splashSubtitle}</h1>
         <div className="splash-loader mt-7 h-1.5 w-56 overflow-hidden rounded-full bg-white/15 ring-1 ring-white/10">
           <div className="h-full rounded-full bg-gradient-to-r from-gmi-orange via-white to-sky-300" />
         </div>

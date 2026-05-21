@@ -23,6 +23,33 @@ export type AdminSettings = {
   occupancyGoal: number;
   notifyCharges: boolean;
   notifyMaintenance: boolean;
+  userRoles: string;
+  contractClauses: string;
+  damagePolicy: string;
+  depositRequired: boolean;
+  defaultDeposit: number;
+  insuranceIncluded: boolean;
+  insuranceDeductible: number;
+  requirePickupPhotos: boolean;
+  requireReturnPhotos: boolean;
+  requireSignature: boolean;
+  requiredChecklistAreas: string;
+  financialCategories: string;
+  whatsappChargeMessage: string;
+  whatsappReceiptMessage: string;
+  reservationMaxDays: number;
+  reservationDepositRequired: boolean;
+  reservationStatuses: string;
+  notifyHour: string;
+  notifyEmail: boolean;
+  notifyWhatsapp: boolean;
+  requireCnh: boolean;
+  requireCpf: boolean;
+  requireAddressProof: boolean;
+  requireCnhValidity: boolean;
+  advancedVehicleStatuses: string;
+  systemName: string;
+  splashSubtitle: string;
 };
 
 export const defaultAdminSettings: AdminSettings = {
@@ -44,12 +71,39 @@ export const defaultAdminSettings: AdminSettings = {
   occupancyGoal: 85,
   notifyCharges: true,
   notifyMaintenance: true,
+  userRoles: "Dono/Admin\nAtendente\nFinanceiro\nSomente leitura",
+  contractClauses: "Locatário declara receber o veículo em perfeito estado. Multas, avarias e atrasos serão cobrados conforme vistoria e regras da locadora.",
+  damagePolicy: "Avarias não registradas na retirada serão cobradas na devolução conforme fotos, checklist e orçamento.",
+  depositRequired: true,
+  defaultDeposit: 500,
+  insuranceIncluded: false,
+  insuranceDeductible: 1500,
+  requirePickupPhotos: true,
+  requireReturnPhotos: true,
+  requireSignature: true,
+  requiredChecklistAreas: "Dianteira\nTraseira\nLaterais\nTeto\nPara-brisa\nPneus\nInterior\nPainel\nKM\nCombustível",
+  financialCategories: "Diária\nCombustível\nÓleo\nPneus\nMecânica\nFunilaria\nDocumentação\nSeguro\nMultas\nAvarias\nOutros",
+  whatsappChargeMessage: "Olá, tudo bem? Passando para lembrar do pagamento da locação do veículo.",
+  whatsappReceiptMessage: "Segue recibo da GMI Locadora. Obrigado pela preferência.",
+  reservationMaxDays: 7,
+  reservationDepositRequired: true,
+  reservationStatuses: "Pendente\nConfirmada\nCancelada\nExpirada",
+  notifyHour: "08:00",
+  notifyEmail: true,
+  notifyWhatsapp: true,
+  requireCnh: true,
+  requireCpf: true,
+  requireAddressProof: true,
+  requireCnhValidity: true,
+  advancedVehicleStatuses: "Disponível\nReservado\nAlugado\nManutenção\nBloqueado\nVendido/Inativo",
+  systemName: "GMI Locadora",
+  splashSubtitle: "Gestão de frota premium",
 };
 
 function loadLocal<T>(key: string, fallback: T) {
   if (typeof window === "undefined") return fallback;
   const raw = localStorage.getItem(key);
-  return raw ? (JSON.parse(raw) as T) : fallback;
+  return raw ? ({ ...(fallback as object), ...(JSON.parse(raw) as object) } as T) : fallback;
 }
 
 export function useStoredVehicles() {

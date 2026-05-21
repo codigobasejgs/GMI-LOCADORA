@@ -121,6 +121,7 @@ export default function RelatoriosPage() {
       <div class="card"><span>Receita</span><strong>${money.format(revenue)}</strong></div>
       <div class="card"><span>Lucro</span><strong>${money.format(profit)}</strong></div>
     </div>
+    ${section("Configurações administrativas", [["Empresa", settings.tradeName], ["CNPJ", settings.cnpj], ["WhatsApp", settings.whatsapp], ["Caução padrão", money.format(settings.defaultDeposit)], ["Multa diária", money.format(settings.dailyFine)], ["Seguro incluso", settings.insuranceIncluded ? "Sim" : "Não"], ["Checklist obrigatório", settings.requirePickupPhotos || settings.requireReturnPhotos ? "Sim" : "Não"]], ["Configuração", "Valor"])}
     ${section("Catálogo de veículos", vehicleRows, ["Placa", "Veículo", "Ano", "Status", "Diária", "KM atual", "Próxima revisão"])}
     ${section("Clientes", clientRows, ["Nome", "CPF/CNPJ", "CNH", "WhatsApp", "Endereço"])}
     ${section("Reservas e contratos", rentalRows, ["Contrato", "Cliente", "Veículo", "Início", "Fim", "Status", "Pagamento", "Valor"])}

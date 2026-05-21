@@ -110,8 +110,42 @@ export default function ConfiguracoesPage() {
             </div>
           </Panel>
 
+          <Panel title="Contrato, cobrança e WhatsApp" subtitle="Cláusulas, políticas, caução, seguro e mensagens automáticas.">
+            <div className="grid gap-4 md:grid-cols-2">
+              <Field label="Cláusulas padrão"><textarea rows={5} className={`${inputClass} resize-none`} value={form.contractClauses} onChange={(e) => update("contractClauses", e.target.value)} /></Field>
+              <Field label="Política de avarias"><textarea rows={5} className={`${inputClass} resize-none`} value={form.damagePolicy} onChange={(e) => update("damagePolicy", e.target.value)} /></Field>
+              <Field label="Mensagem cobrança WhatsApp"><textarea rows={4} className={`${inputClass} resize-none`} value={form.whatsappChargeMessage} onChange={(e) => update("whatsappChargeMessage", e.target.value)} /></Field>
+              <Field label="Mensagem recibo WhatsApp"><textarea rows={4} className={`${inputClass} resize-none`} value={form.whatsappReceiptMessage} onChange={(e) => update("whatsappReceiptMessage", e.target.value)} /></Field>
+              <Field label="Caução padrão"><input type="number" className={inputClass} value={form.defaultDeposit} onChange={(e) => update("defaultDeposit", Number(e.target.value))} /></Field>
+              <Field label="Franquia/seguro"><input type="number" className={inputClass} value={form.insuranceDeductible} onChange={(e) => update("insuranceDeductible", Number(e.target.value))} /></Field>
+              <Field label="Regras"><div className="grid gap-2"><Toggle label="Caução obrigatória" checked={form.depositRequired} onChange={(checked) => update("depositRequired", checked)} /><Toggle label="Seguro incluso" checked={form.insuranceIncluded} onChange={(checked) => update("insuranceIncluded", checked)} /></div></Field>
+            </div>
+          </Panel>
+
+          <Panel title="Checklist, documentos e reservas" subtitle="Obrigatoriedades antes de entregar/devolver veículo.">
+            <div className="grid gap-4 md:grid-cols-2">
+              <Field label="Áreas obrigatórias checklist"><textarea rows={7} className={`${inputClass} resize-none`} value={form.requiredChecklistAreas} onChange={(e) => update("requiredChecklistAreas", e.target.value)} /></Field>
+              <Field label="Status de reserva"><textarea rows={7} className={`${inputClass} resize-none`} value={form.reservationStatuses} onChange={(e) => update("reservationStatuses", e.target.value)} /></Field>
+              <Field label="Prazo máximo reserva (dias)"><input type="number" className={inputClass} value={form.reservationMaxDays} onChange={(e) => update("reservationMaxDays", Number(e.target.value))} /></Field>
+              <Field label="Obrigatórios"><div className="grid gap-2"><Toggle label="Fotos na retirada" checked={form.requirePickupPhotos} onChange={(checked) => update("requirePickupPhotos", checked)} /><Toggle label="Fotos na devolução" checked={form.requireReturnPhotos} onChange={(checked) => update("requireReturnPhotos", checked)} /><Toggle label="Assinatura digital" checked={form.requireSignature} onChange={(checked) => update("requireSignature", checked)} /><Toggle label="Sinal na reserva" checked={form.reservationDepositRequired} onChange={(checked) => update("reservationDepositRequired", checked)} /></div></Field>
+              <Field label="Documentos"><div className="grid gap-2"><Toggle label="CNH" checked={form.requireCnh} onChange={(checked) => update("requireCnh", checked)} /><Toggle label="CPF" checked={form.requireCpf} onChange={(checked) => update("requireCpf", checked)} /><Toggle label="Comprovante residência" checked={form.requireAddressProof} onChange={(checked) => update("requireAddressProof", checked)} /><Toggle label="Validade CNH" checked={form.requireCnhValidity} onChange={(checked) => update("requireCnhValidity", checked)} /></div></Field>
+            </div>
+          </Panel>
+
+          <Panel title="Operação, permissões e notificações" subtitle="Controle interno, categorias, status avançados e rotina diária.">
+            <div className="grid gap-4 md:grid-cols-2">
+              <Field label="Usuários/permissões"><textarea rows={6} className={`${inputClass} resize-none`} value={form.userRoles} onChange={(e) => update("userRoles", e.target.value)} /></Field>
+              <Field label="Categorias financeiras"><textarea rows={6} className={`${inputClass} resize-none`} value={form.financialCategories} onChange={(e) => update("financialCategories", e.target.value)} /></Field>
+              <Field label="Status avançados de veículo"><textarea rows={5} className={`${inputClass} resize-none`} value={form.advancedVehicleStatuses} onChange={(e) => update("advancedVehicleStatuses", e.target.value)} /></Field>
+              <Field label="Horário resumo diário"><input type="time" className={inputClass} value={form.notifyHour} onChange={(e) => update("notifyHour", e.target.value)} /></Field>
+              <Field label="Canais"><div className="grid gap-2"><Toggle label="Enviar por e-mail" checked={form.notifyEmail} onChange={(checked) => update("notifyEmail", checked)} /><Toggle label="Enviar por WhatsApp" checked={form.notifyWhatsapp} onChange={(checked) => update("notifyWhatsapp", checked)} /></div></Field>
+            </div>
+          </Panel>
+
           <Panel title="Aparência" subtitle="Cores que alteram a experiência visual da demo.">
             <div className="grid gap-4 md:grid-cols-2">
+              <Field label="Nome do sistema"><input className={inputClass} value={form.systemName} onChange={(e) => update("systemName", e.target.value)} /></Field>
+              <Field label="Subtítulo da abertura"><input className={inputClass} value={form.splashSubtitle} onChange={(e) => update("splashSubtitle", e.target.value)} /></Field>
               <Field label="Cor principal"><input type="color" className="h-14 w-full rounded-2xl border border-slate-200 bg-slate-50 p-2" value={form.primaryColor} onChange={(e) => update("primaryColor", e.target.value)} /></Field>
               <Field label="Cor destaque"><input type="color" className="h-14 w-full rounded-2xl border border-slate-200 bg-slate-50 p-2" value={form.accentColor} onChange={(e) => update("accentColor", e.target.value)} /></Field>
             </div>
