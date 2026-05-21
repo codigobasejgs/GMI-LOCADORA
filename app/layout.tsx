@@ -2,6 +2,7 @@ import type { Metadata, Viewport } from "next";
 import { Inter } from "next/font/google";
 import "./globals.css";
 import { Sidebar } from "@/components/layout/sidebar";
+import { SplashScreen } from "@/components/layout/splash-screen";
 
 const inter = Inter({ subsets: ["latin"] });
 
@@ -26,6 +27,7 @@ export default function RootLayout({ children }: Readonly<{ children: React.Reac
   return (
     <html lang="pt-BR">
       <body className={inter.className}>
+        <SplashScreen />
         <Sidebar />
         <div className="min-h-screen bg-[#eef3f7] lg:pl-72">
           {children}

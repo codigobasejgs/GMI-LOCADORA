@@ -37,3 +37,31 @@ body {
 @media (display-mode: standalone) {
   body { padding-top: env(safe-area-inset-top); }
 }
+
+@keyframes splash-logo-in {
+  0% { opacity: 0; transform: translateY(28px) scale(0.72) rotate(-4deg); filter: blur(12px); }
+  55% { opacity: 1; transform: translateY(0) scale(1.08) rotate(1deg); filter: blur(0); }
+  100% { opacity: 1; transform: translateY(0) scale(1) rotate(0); filter: blur(0); }
+}
+
+@keyframes splash-text-in {
+  0% { opacity: 0; transform: translateY(18px); letter-spacing: 0.2em; }
+  100% { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes splash-loader {
+  0% { transform: translateX(-100%); }
+  100% { transform: translateX(100%); }
+}
+
+@keyframes splash-float {
+  0%, 100% { transform: translate3d(0, 0, 0) scale(1); }
+  50% { transform: translate3d(16px, -14px, 0) scale(1.08); }
+}
+
+.splash-logo-wrap { animation: splash-logo-in 1.15s cubic-bezier(0.16, 1, 0.3, 1) both; }
+.splash-kicker { animation: splash-text-in 0.7s ease-out 0.45s both; }
+.splash-title { animation: splash-text-in 0.75s ease-out 0.65s both; }
+.splash-loader > div { animation: splash-loader 1.4s ease-in-out 0.85s infinite; }
+.splash-float { animation: splash-float 4s ease-in-out infinite; }
+.splash-float-delayed { animation: splash-float 4.8s ease-in-out 0.6s infinite; }
