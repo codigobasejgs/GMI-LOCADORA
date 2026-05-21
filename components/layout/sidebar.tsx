@@ -5,8 +5,10 @@ import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import { useState } from "react";
 import { navItems } from "@/lib/mock-data";
+import { useAdminSettings } from "@/lib/local-store";
 
 export function Sidebar() {
+  const settings = useAdminSettings();
   const pathname = usePathname();
   const [open, setOpen] = useState(false);
 
@@ -18,7 +20,7 @@ export function Sidebar() {
           <div className="rounded-2xl bg-white p-1.5 shadow-md">
             <Image src="/logo-gmi.png" alt="GMI" width={100} height={50} className="h-9 w-auto rounded-xl object-contain" />
           </div>
-          <span className="text-lg font-black tracking-tight text-white">GMI Locadora</span>
+          <span className="text-lg font-black tracking-tight text-white">{settings.tradeName}</span>
         </Link>
         <button
           type="button"
@@ -45,7 +47,7 @@ export function Sidebar() {
             <Image src="/logo-gmi.png" alt="GMI" width={120} height={60} className="h-12 w-auto rounded-xl object-contain" />
           </div>
           <div>
-            <p className="text-lg font-black tracking-tight text-white">GMI Locadora</p>
+            <p className="text-lg font-black tracking-tight text-white">{settings.tradeName}</p>
             <p className="text-xs font-bold text-blue-300/70">Gestão de Frota</p>
           </div>
         </div>
@@ -74,7 +76,7 @@ export function Sidebar() {
 
         {/* Footer */}
         <div className="border-t border-white/10 px-6 py-4">
-          <p className="text-xs font-bold text-blue-300/40">GMI Locadora &copy; 2026</p>
+          <p className="text-xs font-bold text-blue-300/40">{settings.tradeName} &copy; 2026</p>
           <p className="text-xs font-bold text-blue-300/30">Sistema de Gestão v1.0</p>
         </div>
       </aside>

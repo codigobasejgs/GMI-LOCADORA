@@ -2,7 +2,7 @@
 
 import { useMemo, useState } from "react";
 import { vehicles as seedVehicles, rentals, payments, maintenances, money } from "@/lib/mock-data";
-import { findStoredClient, findStoredVehicle, useStoredClients, useStoredVehicles } from "@/lib/local-store";
+import { findStoredClient, findStoredVehicle, useAdminSettings, useStoredClients, useStoredVehicles } from "@/lib/local-store";
 
 type EntryType = "receita" | "despesa";
 type Entry = { id: string; type: EntryType; vehicleId: string; title: string; amount: number; date: string; category: string };
@@ -25,9 +25,9 @@ function fmtDate(iso: string) {
   return `${d}/${m}/${y}`;
 }
 
-function receiptText(entry: Entry, vehicles: typeof seedVehicles) {
+function receiptText(entry: Entry, vehicles: typeof seedVehicles, settings: ReturnType<typeof useAdminSettings>) {
   const vehicle = findStoredVehicle(vehicles, entry.vehicleId);
-  return `GMI Locadora\nRECIBO\nTipo: ${entry.type}\nDescricao: ${entry.title}\nVeiculo: ${vehicle?.brand ?? ""} ${vehicle?.model ?? ""} ${vehicle?.plate ?? ""}\nValor: ${money.format(entry.amount)}\nData: ${fmtDate(entry.date)}\nStatus: baixado no sistema`;
+  return `${settings.receiptTitle}\n${settings.tradeName}\nCNPJ: ${settings.cnpj}\nWhatsApp: ${settings.whatsapp}\n\nTipo: ${entry.type}\nDescricao: ${entry.title}\nVeiculo: ${vehicle?.brand ?? ""} ${vehicle?.model ?? ""} ${vehicle?.plate ?? ""}\nValor: ${money.format(entry.amount)}\nData: ${fmtDate(entry.date)}\nStatus: baixado no sistema\n\n${settings.receiptFooter}`;
 }
 
 function onlyDigits(value: string) {
@@ -54,6 +54,7 @@ function StatCard({ label, value, sub, tone }: { label: string; value: string; s
 }
 
 export default function FinanceiroPage() {
+  const settings = useAdminSettings();
   const vehicles = useStoredVehicles();
   const clients = useStoredClients();
   const [entries, setEntries] = useState<Entry[]>(initialEntries);
@@ -97,7 +98,7 @@ export default function FinanceiroPage() {
   }
 
   async function copyReceipt(entry: Entry) {
-    await navigator.clipboard.writeText(receiptText(entry, vehicles));
+    await navigator.clipboard.writeText(receiptText(entry, vehicles, settings));
     alert("Recibo copiado. Cole no WhatsApp do cliente.");
   }
 
@@ -105,7 +106,7 @@ export default function FinanceiroPage() {
     const rental = rentals.find((item) => item.vehicleId === entry.vehicleId && item.status === "ativo");
     const client = rental ? findStoredClient(clients, rental.clientId) : null;
     const phone = onlyDigits(client?.whatsapp ?? "");
-    const text = encodeURIComponent(receiptText(entry, vehicles));
+    const text = encodeURIComponent(receiptText(entry, vehicles, settings));
     window.open(`https://wa.me/${phone || ""}?text=${text}`, "_blank", "noopener,noreferrer");
   }
 

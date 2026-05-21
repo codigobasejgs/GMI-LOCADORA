@@ -2,8 +2,10 @@
 
 import Image from "next/image";
 import { useEffect, useState } from "react";
+import { useAdminSettings } from "@/lib/local-store";
 
 export function SplashScreen() {
+  const settings = useAdminSettings();
   const [visible, setVisible] = useState(true);
   const [leaving, setLeaving] = useState(false);
 
@@ -33,8 +35,8 @@ export function SplashScreen() {
           </div>
         </div>
 
-        <p className="splash-kicker mt-8 text-xs font-black uppercase tracking-[0.55em] text-orange-200">GMI Locadora</p>
-        <h1 className="splash-title mt-3 text-3xl font-black tracking-tight text-white sm:text-5xl">Gestão de frota premium</h1>
+        <p className="splash-kicker mt-8 text-xs font-black uppercase tracking-[0.55em] text-orange-200">{settings.tradeName}</p>
+        <h1 className="splash-title mt-3 text-3xl font-black tracking-tight text-white sm:text-5xl">{settings.receiptTitle}</h1>
         <div className="splash-loader mt-7 h-1.5 w-56 overflow-hidden rounded-full bg-white/15 ring-1 ring-white/10">
           <div className="h-full rounded-full bg-gradient-to-r from-gmi-orange via-white to-sky-300" />
         </div>

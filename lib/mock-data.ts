@@ -103,6 +103,7 @@ export const navItems: NavItem[] = [
   { label: "Checklist", href: "/checklist", icon: "✅" },
   { label: "Financeiro", href: "/financeiro", icon: "💰" },
   { label: "Relatórios", href: "/relatorios", icon: "📈" },
+  { label: "Configurações", href: "/configuracoes", icon: "⚙️" },
 ];
 
 // ─── Helpers ────────────────────────────────────────────

@@ -2,7 +2,7 @@
 
 import Image from "next/image";
 import { clients as seedClients, maintenances, money, payments, rentals, today } from "@/lib/mock-data";
-import { findStoredClient, findStoredVehicle, useStoredClients, useStoredVehicles } from "@/lib/local-store";
+import { findStoredClient, findStoredVehicle, useAdminSettings, useStoredClients, useStoredVehicles } from "@/lib/local-store";
 
 function fmtDate(iso: string | null) {
   if (!iso) return "Em aberto";
@@ -34,7 +34,18 @@ function download(name: string, content: string, type: string) {
   URL.revokeObjectURL(url);
 }
 
+async function imageToDataUrl(src: string) {
+  const response = await fetch(src);
+  const blob = await response.blob();
+  return new Promise<string>((resolve) => {
+    const reader = new FileReader();
+    reader.onload = () => resolve(String(reader.result));
+    reader.readAsDataURL(blob);
+  });
+}
+
 export default function RelatoriosPage() {
+  const settings = useAdminSettings();
   const vehicles = useStoredVehicles();
   const clients = useStoredClients();
 
@@ -74,12 +85,12 @@ export default function RelatoriosPage() {
     return [vehicle.plate, `${vehicle.brand} ${vehicle.model}`, money.format(vehiclePayments), money.format(vehicleCosts), money.format(vehiclePayments - vehicleCosts)];
   });
 
-  function reportHtml() {
+  function reportHtml(logoSrc: string) {
     return `<!doctype html>
 <html lang="pt-BR">
 <head>
 <meta charset="utf-8" />
-<title>Relatório Premium GMI Locadora</title>
+<title>Relatório Premium ${sanitize(settings.tradeName)}</title>
 <style>
   body { margin: 0; font-family: Arial, sans-serif; color: #0f172a; background: #eef3f7; }
   .hero { background: radial-gradient(circle at top left,#2b8fcc 0,#0b5a93 36%,#063957 100%); color: white; padding: 42px; }
@@ -101,7 +112,7 @@ export default function RelatoriosPage() {
 </head>
 <body>
   <div class="hero">
-    <div class="brand"><img src="/logo-gmi.png" alt="GMI" /><div><h1>Relatório Premium GMI Locadora</h1><p>Gestão completa de frota, contratos, financeiro e pendências</p></div></div>
+    <div class="brand"><img src="${logoSrc}" alt="${sanitize(settings.tradeName)}" /><div><h1>Relatório Premium ${sanitize(settings.tradeName)}</h1><p>${sanitize(settings.companyName)} • CNPJ ${sanitize(settings.cnpj)} • ${sanitize(settings.whatsapp)}</p></div></div>
   </div>
   <div class="wrap">
     <div class="cards">
@@ -117,18 +128,20 @@ export default function RelatoriosPage() {
     ${section("Pagamentos pendentes / cobranças", pendingRows, ["Cliente", "WhatsApp", "Placa", "Dia cobrança", "Valor"])}
     ${section("Manutenções e custos", maintenanceRows, ["Placa", "Veículo", "Descrição", "Data", "KM", "Custo"])}
     ${section("Rentabilidade por veículo", profitabilityRows, ["Placa", "Veículo", "Receita", "Custos", "Lucro"])}
-    <div class="footer">Gerado em ${new Date().toLocaleString("pt-BR")} • GMI Locadora • Relatório demonstrativo premium</div>
+    <div class="footer">Gerado em ${new Date().toLocaleString("pt-BR")} • ${sanitize(settings.tradeName)} • ${sanitize(settings.receiptFooter)}</div>
   </div>
 </body>
 </html>`;
   }
 
-  function exportHtml() {
-    download(`relatorio-gmi-${Date.now()}.html`, reportHtml(), "text/html;charset=utf-8");
+  async function exportHtml() {
+    const logoSrc = await imageToDataUrl("/logo-gmi.png");
+    download(`relatorio-gmi-${Date.now()}.html`, reportHtml(logoSrc), "text/html;charset=utf-8");
   }
 
-  function exportExcel() {
-    download(`relatorio-gmi-${Date.now()}.xls`, reportHtml(), "application/vnd.ms-excel;charset=utf-8");
+  async function exportExcel() {
+    const logoSrc = await imageToDataUrl("/logo-gmi.png");
+    download(`relatorio-gmi-${Date.now()}.xls`, reportHtml(logoSrc), "application/vnd.ms-excel;charset=utf-8");
   }
 
   return (

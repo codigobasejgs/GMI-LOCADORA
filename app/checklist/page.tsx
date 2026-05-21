@@ -2,7 +2,7 @@
 
 import { useMemo, useRef, useState } from "react";
 import { rentals, getActiveRentals, money } from "@/lib/mock-data";
-import { findStoredClient, findStoredVehicle, useStoredClients, useStoredVehicles } from "@/lib/local-store";
+import { findStoredClient, findStoredVehicle, useAdminSettings, useStoredClients, useStoredVehicles } from "@/lib/local-store";
 import type { ChecklistType, FuelLevel } from "@/lib/types";
 
 const FUEL_LEVELS: { label: string; value: FuelLevel; percent: number }[] = [
@@ -135,7 +135,7 @@ function onlyDigits(value: string) {
   return value.replace(/\D/g, "");
 }
 
-function ContractPreview({ inspection, clients, vehicles }: { inspection: SavedInspection; clients: ReturnType<typeof useStoredClients>; vehicles: ReturnType<typeof useStoredVehicles> }) {
+function ContractPreview({ inspection, clients, vehicles, settings }: { inspection: SavedInspection; clients: ReturnType<typeof useStoredClients>; vehicles: ReturnType<typeof useStoredVehicles>; settings: ReturnType<typeof useAdminSettings> }) {
   const rental = rentals.find((item) => item.id === inspection.rentalId);
   const client = rental ? findStoredClient(clients, rental.clientId) : null;
   const vehicle = rental ? findStoredVehicle(vehicles, rental.vehicleId) : null;
@@ -146,7 +146,7 @@ function ContractPreview({ inspection, clients, vehicles }: { inspection: SavedI
     window.print();
   }
 
-  const receipt = `GMI Locadora\nRecibo/termo ${inspection.type}\nCliente: ${client?.name}\nVeiculo: ${vehicle?.brand} ${vehicle?.model} ${vehicle?.plate}\nKM: ${inspection.kmReading.toLocaleString("pt-BR")}\nValor contrato: ${money.format(rental?.totalValue ?? 0)}\nFotos anexadas: ${photoCount}\nData: ${new Date(inspection.createdAt).toLocaleString("pt-BR")}`;
+  const receipt = `${settings.receiptTitle}\n${settings.tradeName}\nCNPJ: ${settings.cnpj}\nWhatsApp: ${settings.whatsapp}\n\nTermo: ${inspection.type}\nCliente: ${client?.name}\nVeiculo: ${vehicle?.brand} ${vehicle?.model} ${vehicle?.plate}\nKM: ${inspection.kmReading.toLocaleString("pt-BR")}\nValor contrato: ${money.format(rental?.totalValue ?? 0)}\nFotos anexadas: ${photoCount}\nData: ${new Date(inspection.createdAt).toLocaleString("pt-BR")}\n\n${settings.receiptFooter}`;
 
   async function copyReceipt() {
     await navigator.clipboard.writeText(receipt);
@@ -242,6 +242,7 @@ function ContractPreview({ inspection, clients, vehicles }: { inspection: SavedI
 }
 
 export default function ChecklistPage() {
+  const settings = useAdminSettings();
   const clients = useStoredClients();
   const vehicles = useStoredVehicles();
   const [type, setType] = useState<ChecklistType>("retirada");
@@ -298,7 +299,7 @@ export default function ChecklistPage() {
           </div>
         </section>
         <div className="mx-auto max-w-5xl px-4 sm:px-6 lg:px-8 print:max-w-none print:px-0">
-          <ContractPreview inspection={savedInspection} clients={clients} vehicles={vehicles} />
+          <ContractPreview inspection={savedInspection} clients={clients} vehicles={vehicles} settings={settings} />
           <button type="button" onClick={() => setSavedInspection(null)} className="mx-auto mt-6 block rounded-2xl bg-slate-900 px-8 py-4 text-sm font-black text-white print:hidden">
             Voltar e editar vistoria
           </button>
