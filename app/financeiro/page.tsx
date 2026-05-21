@@ -2,7 +2,7 @@
 
 import { useMemo, useState } from "react";
 import { vehicles as seedVehicles, rentals, payments, maintenances, money } from "@/lib/mock-data";
-import { findStoredVehicle, useStoredVehicles } from "@/lib/local-store";
+import { findStoredClient, findStoredVehicle, useStoredClients, useStoredVehicles } from "@/lib/local-store";
 
 type EntryType = "receita" | "despesa";
 type Entry = { id: string; type: EntryType; vehicleId: string; title: string; amount: number; date: string; category: string };
@@ -27,7 +27,11 @@ function fmtDate(iso: string) {
 
 function receiptText(entry: Entry, vehicles: typeof seedVehicles) {
   const vehicle = findStoredVehicle(vehicles, entry.vehicleId);
-  return `GMI Locadora\nRECIBO\nTipo: ${entry.type}\nDescricao: ${entry.title}\nVeiculo: ${vehicle?.brand ?? ""} ${vehicle?.model ?? ""} ${vehicle?.plate ?? ""}\nValor: ${money.format(entry.amount)}\nData: ${fmtDate(entry.date)}\nStatus: registrado no sistema`;
+  return `GMI Locadora\nRECIBO\nTipo: ${entry.type}\nDescricao: ${entry.title}\nVeiculo: ${vehicle?.brand ?? ""} ${vehicle?.model ?? ""} ${vehicle?.plate ?? ""}\nValor: ${money.format(entry.amount)}\nData: ${fmtDate(entry.date)}\nStatus: baixado no sistema`;
+}
+
+function onlyDigits(value: string) {
+  return value.replace(/\D/g, "");
 }
 
 function StatCard({ label, value, sub, tone }: { label: string; value: string; sub: string; tone: "blue" | "orange" | "green" | "red" }) {
@@ -51,6 +55,7 @@ function StatCard({ label, value, sub, tone }: { label: string; value: string; s
 
 export default function FinanceiroPage() {
   const vehicles = useStoredVehicles();
+  const clients = useStoredClients();
   const [entries, setEntries] = useState<Entry[]>(initialEntries);
   const [goal, setGoal] = useState<Goal>({ monthlyRevenue: 25000, monthlyProfit: 16000, occupancy: 85 });
   const [form, setForm] = useState({ type: "despesa" as EntryType, vehicleId: seedVehicles[0]?.id ?? "", title: "", amount: "", category: "manutencao" });
@@ -94,6 +99,14 @@ export default function FinanceiroPage() {
   async function copyReceipt(entry: Entry) {
     await navigator.clipboard.writeText(receiptText(entry, vehicles));
     alert("Recibo copiado. Cole no WhatsApp do cliente.");
+  }
+
+  function sendReceiptWhatsApp(entry: Entry) {
+    const rental = rentals.find((item) => item.vehicleId === entry.vehicleId && item.status === "ativo");
+    const client = rental ? findStoredClient(clients, rental.clientId) : null;
+    const phone = onlyDigits(client?.whatsapp ?? "");
+    const text = encodeURIComponent(receiptText(entry, vehicles));
+    window.open(`https://wa.me/${phone || ""}?text=${text}`, "_blank", "noopener,noreferrer");
   }
 
   async function copyDailyAlert() {
@@ -195,7 +208,7 @@ export default function FinanceiroPage() {
           <div className="divide-y divide-slate-100">
             {entries.slice(0, 10).map((entry) => {
               const vehicle = findStoredVehicle(vehicles, entry.vehicleId);
-              return <div key={entry.id} className="flex flex-col gap-3 p-5 sm:flex-row sm:items-center sm:justify-between"><div><p className="font-black text-slate-950">{entry.title}</p><p className="text-xs font-bold text-slate-500">{vehicle?.brand} {vehicle?.model} • {entry.category} • {fmtDate(entry.date)}</p></div><div className="flex items-center gap-3"><p className={`text-lg font-black ${entry.type === "receita" ? "text-emerald-600" : "text-gmi-orange"}`}>{entry.type === "receita" ? "+" : "-"}{money.format(entry.amount)}</p><button type="button" onClick={() => copyReceipt(entry)} className="rounded-xl bg-slate-100 px-3 py-2 text-xs font-black text-slate-700 hover:bg-slate-200">Baixar Pagamento</button></div></div>;
+              return <div key={entry.id} className="flex flex-col gap-3 p-5 sm:flex-row sm:items-center sm:justify-between"><div><p className="font-black text-slate-950">{entry.title}</p><p className="text-xs font-bold text-slate-500">{vehicle?.brand} {vehicle?.model} • {entry.category} • {fmtDate(entry.date)}</p></div><div className="flex flex-wrap items-center gap-3"><p className={`text-lg font-black ${entry.type === "receita" ? "text-emerald-600" : "text-gmi-orange"}`}>{entry.type === "receita" ? "+" : "-"}{money.format(entry.amount)}</p><button type="button" onClick={() => copyReceipt(entry)} className="rounded-xl bg-slate-100 px-3 py-2 text-xs font-black text-slate-700 hover:bg-slate-200">Baixar Pagamento</button><button type="button" onClick={() => sendReceiptWhatsApp(entry)} className="rounded-xl bg-emerald-500 px-3 py-2 text-xs font-black text-white hover:bg-emerald-600">Enviar WhatsApp</button></div></div>;
             })}
           </div>
         </div>

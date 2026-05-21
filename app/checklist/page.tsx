@@ -131,6 +131,10 @@ function SignaturePad({ value, onChange }: { value: string; onChange: (value: st
   );
 }
 
+function onlyDigits(value: string) {
+  return value.replace(/\D/g, "");
+}
+
 function ContractPreview({ inspection, clients, vehicles }: { inspection: SavedInspection; clients: ReturnType<typeof useStoredClients>; vehicles: ReturnType<typeof useStoredVehicles> }) {
   const rental = rentals.find((item) => item.id === inspection.rentalId);
   const client = rental ? findStoredClient(clients, rental.clientId) : null;
@@ -142,10 +146,16 @@ function ContractPreview({ inspection, clients, vehicles }: { inspection: SavedI
     window.print();
   }
 
+  const receipt = `GMI Locadora\nRecibo/termo ${inspection.type}\nCliente: ${client?.name}\nVeiculo: ${vehicle?.brand} ${vehicle?.model} ${vehicle?.plate}\nKM: ${inspection.kmReading.toLocaleString("pt-BR")}\nValor contrato: ${money.format(rental?.totalValue ?? 0)}\nFotos anexadas: ${photoCount}\nData: ${new Date(inspection.createdAt).toLocaleString("pt-BR")}`;
+
   async function copyReceipt() {
-    const text = `GMI Locadora\nRecibo/termo ${inspection.type}\nCliente: ${client?.name}\nVeiculo: ${vehicle?.brand} ${vehicle?.model} ${vehicle?.plate}\nKM: ${inspection.kmReading.toLocaleString("pt-BR")}\nValor contrato: ${money.format(rental?.totalValue ?? 0)}\nFotos anexadas: ${photoCount}\nData: ${new Date(inspection.createdAt).toLocaleString("pt-BR")}`;
-    await navigator.clipboard.writeText(text);
+    await navigator.clipboard.writeText(receipt);
     alert("Recibo copiado. Cole no WhatsApp do cliente.");
+  }
+
+  function sendWhatsApp() {
+    const phone = onlyDigits(client?.whatsapp ?? "");
+    window.open(`https://wa.me/${phone || ""}?text=${encodeURIComponent(receipt)}`, "_blank", "noopener,noreferrer");
   }
 
   return (
@@ -220,7 +230,10 @@ function ContractPreview({ inspection, clients, vehicles }: { inspection: SavedI
             Gerar PDF / Imprimir contrato
           </button>
           <button type="button" onClick={copyReceipt} className="flex-1 rounded-2xl bg-gmi-orange px-6 py-4 text-sm font-black text-white shadow-xl shadow-orange-200 hover:scale-[1.01]">
-            Baixar Pagamento / Copiar WhatsApp
+            Baixar Pagamento / Copiar recibo
+          </button>
+          <button type="button" onClick={sendWhatsApp} className="flex-1 rounded-2xl bg-emerald-500 px-6 py-4 text-sm font-black text-white shadow-xl shadow-emerald-200 hover:scale-[1.01]">
+            Enviar pelo WhatsApp
           </button>
         </div>
       </div>
