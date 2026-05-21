@@ -3,6 +3,7 @@ import { Inter } from "next/font/google";
 import "./globals.css";
 import { Sidebar } from "@/components/layout/sidebar";
 import { SplashScreen } from "@/components/layout/splash-screen";
+import { SmartNavigation } from "@/components/layout/smart-navigation";
 
 const inter = Inter({ subsets: ["latin"] });
 
@@ -29,7 +30,8 @@ export default function RootLayout({ children }: Readonly<{ children: React.Reac
       <body className={inter.className}>
         <SplashScreen />
         <Sidebar />
-        <div className="min-h-screen bg-[#eef3f7] lg:pl-72">
+        <SmartNavigation />
+        <div className="min-h-screen bg-[#eef3f7] pb-44 lg:pb-0 lg:pl-72">
           {children}
         </div>
       </body>
