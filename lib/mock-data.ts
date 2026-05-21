@@ -96,6 +96,7 @@ export const monthlyRevenue = [
 // ─── Navegação ──────────────────────────────────────────
 export const navItems: NavItem[] = [
   { label: "Dashboard", href: "/", icon: "📊" },
+  { label: "Inteligência", href: "/inteligencia", icon: "🧠" },
   { label: "Catálogo", href: "/catalogo", icon: "🚗" },
   { label: "Cadastros", href: "/cadastros", icon: "🧾" },
   { label: "Reservas", href: "/reservas", icon: "📅" },

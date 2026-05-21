@@ -5,7 +5,8 @@ import { usePathname, useRouter } from "next/navigation";
 import { useEffect, useMemo } from "react";
 
 const flow = [
-  { href: "/", label: "Dashboard", next: "/cadastros", action: "Cadastrar clientes/carros" },
+  { href: "/", label: "Dashboard", next: "/inteligencia", action: "Ver inteligência" },
+  { href: "/inteligencia", label: "Inteligência", next: "/cadastros", action: "Cadastrar clientes/carros" },
   { href: "/cadastros", label: "Cadastros", next: "/catalogo", action: "Ver frota cadastrada" },
   { href: "/catalogo", label: "Catálogo", next: "/reservas", action: "Criar reserva" },
   { href: "/reservas", label: "Reservas", next: "/contratos", action: "Gerar contrato" },
