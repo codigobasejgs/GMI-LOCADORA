@@ -16,7 +16,7 @@ export function Sidebar() {
       <header className="sticky top-0 z-50 flex items-center justify-between bg-gmi-blue px-4 py-3 shadow-lg lg:hidden">
         <Link href="/" className="flex items-center gap-3">
           <div className="rounded-2xl bg-white p-1.5 shadow-md">
-            <Image src="/logo-gmi.jfif" alt="GMI" width={100} height={50} className="h-9 w-auto rounded-xl object-contain" />
+            <Image src="/logo-gmi.png" alt="GMI" width={100} height={50} className="h-9 w-auto rounded-xl object-contain" />
           </div>
           <span className="text-lg font-black tracking-tight text-white">GMI Locadora</span>
         </Link>
@@ -42,7 +42,7 @@ export function Sidebar() {
         {/* Logo */}
         <div className="flex items-center gap-4 border-b border-white/10 px-6 py-5">
           <div className="rounded-2xl bg-white p-2 shadow-xl">
-            <Image src="/logo-gmi.jfif" alt="GMI" width={120} height={60} className="h-12 w-auto rounded-xl object-contain" />
+            <Image src="/logo-gmi.png" alt="GMI" width={120} height={60} className="h-12 w-auto rounded-xl object-contain" />
           </div>
           <div>
             <p className="text-lg font-black tracking-tight text-white">GMI Locadora</p>

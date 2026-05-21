@@ -9,6 +9,10 @@ export const metadata: Metadata = {
   title: "GMI Locadora | Gestão de Frota",
   description: "Sistema de gestão de frota, cobrança e contratos da GMI Locadora.",
   manifest: "/manifest.json",
+  icons: {
+    icon: "/icon.png",
+    apple: "/apple-icon.png",
+  },
   appleWebApp: { capable: true, statusBarStyle: "black-translucent", title: "GMI Locadora" },
 };
 
