@@ -63,6 +63,16 @@ function statusBadge(status: Vehicle["status"]) {
   }
 }
 
+type QuickReservation = {
+  id: string;
+  vehicleId: string;
+  fullName: string;
+  date: string;
+  whatsapp: string;
+  cpf: string;
+  birthDate: string;
+};
+
 /* ═══════════════════════════════════════════════════════
    MAIN PAGE
    ═══════════════════════════════════════════════════════ */
@@ -75,6 +85,9 @@ export default function ReservasPage() {
     return { year: now.getFullYear(), month: now.getMonth() };
   });
   const [hoveredDay, setHoveredDay] = useState<number | null>(null);
+  const [showReserve, setShowReserve] = useState(false);
+  const [quickReservations, setQuickReservations] = useState<QuickReservation[]>([]);
+  const [reserveForm, setReserveForm] = useState({ fullName: "", date: "", whatsapp: "", cpf: "", birthDate: "" });
 
   useEffect(() => {
     if (!selectedVehicleId && vehicles[0]) setSelectedVehicleId(vehicles[0].id);
@@ -146,6 +159,15 @@ export default function ReservasPage() {
   /* ───────────── tooltip position ─────────── */
   const tooltipDay = hoveredDay;
   const tooltipRental = tooltipDay ? dayRentalMap[tooltipDay] : null;
+  const selectedVehicleReservations = quickReservations.filter((item) => item.vehicleId === selectedVehicle.id);
+  const canReserve = reserveForm.fullName.trim() && reserveForm.date && reserveForm.whatsapp.trim() && reserveForm.cpf.trim() && reserveForm.birthDate;
+
+  function saveReservation() {
+    if (!canReserve) return;
+    setQuickReservations((prev) => [{ id: `res-${Date.now()}`, vehicleId: selectedVehicle.id, ...reserveForm }, ...prev]);
+    setReserveForm({ fullName: "", date: "", whatsapp: "", cpf: "", birthDate: "" });
+    setShowReserve(false);
+  }
 
   return (
     <main className="min-h-screen bg-slate-50 text-slate-950">
@@ -167,18 +189,48 @@ export default function ReservasPage() {
                 Visualize a disponibilidade da frota e acompanhe as locacoes ativas.
               </p>
             </div>
-            <div className="rounded-[2rem] bg-white/12 px-5 py-4 ring-1 ring-white/20 backdrop-blur">
-              <p className="text-xs font-bold text-blue-100/70">Mes atual</p>
-              <p className="text-2xl font-black">
-                {MONTH_NAMES[month]} {year}
-              </p>
+            <div className="flex flex-col gap-3 sm:flex-row sm:items-center">
+              <button type="button" onClick={() => setShowReserve(true)} className="rounded-[2rem] bg-gradient-to-r from-gmi-orange to-orange-600 px-6 py-4 text-sm font-black text-white shadow-xl shadow-orange-900/30 transition hover:scale-[1.03]">
+                Reservar
+              </button>
+              <div className="rounded-[2rem] bg-white/12 px-5 py-4 ring-1 ring-white/20 backdrop-blur">
+                <p className="text-xs font-bold text-blue-100/70">Mes atual</p>
+                <p className="text-2xl font-black">
+                  {MONTH_NAMES[month]} {year}
+                </p>
+              </div>
             </div>
           </div>
         </div>
       </section>
 
+      {showReserve && (
+        <section className="relative mx-auto -mt-10 max-w-7xl px-4 sm:px-6 lg:px-8">
+          <div className="rounded-[2rem] bg-white p-5 shadow-card ring-1 ring-slate-100 sm:p-6">
+            <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
+              <div>
+                <p className="text-xs font-black uppercase tracking-[0.18em] text-gmi-orange">Reserva rápida</p>
+                <h2 className="mt-1 text-2xl font-black text-gmi-blueDark">{selectedVehicle.brand} {selectedVehicle.model}</h2>
+                <p className="mt-1 text-sm font-semibold text-slate-500">Preencha os dados do cliente e data desejada.</p>
+              </div>
+              <button type="button" onClick={() => setShowReserve(false)} className="rounded-2xl bg-slate-100 px-4 py-3 text-sm font-black text-slate-600 hover:bg-slate-200">Fechar</button>
+            </div>
+            <div className="mt-5 grid gap-3 md:grid-cols-2 lg:grid-cols-5">
+              <input value={reserveForm.fullName} onChange={(e) => setReserveForm({ ...reserveForm, fullName: e.target.value })} placeholder="Nome completo" className="rounded-2xl border border-slate-200 bg-slate-50 px-4 py-3 text-sm font-bold outline-none focus:border-gmi-blue focus:ring-2 focus:ring-gmi-blue/20 lg:col-span-2" />
+              <input type="date" value={reserveForm.date} onChange={(e) => setReserveForm({ ...reserveForm, date: e.target.value })} className="rounded-2xl border border-slate-200 bg-slate-50 px-4 py-3 text-sm font-bold outline-none focus:border-gmi-blue focus:ring-2 focus:ring-gmi-blue/20" />
+              <input value={reserveForm.whatsapp} onChange={(e) => setReserveForm({ ...reserveForm, whatsapp: e.target.value })} placeholder="WhatsApp" className="rounded-2xl border border-slate-200 bg-slate-50 px-4 py-3 text-sm font-bold outline-none focus:border-gmi-blue focus:ring-2 focus:ring-gmi-blue/20" />
+              <input value={reserveForm.cpf} onChange={(e) => setReserveForm({ ...reserveForm, cpf: e.target.value })} placeholder="CPF" className="rounded-2xl border border-slate-200 bg-slate-50 px-4 py-3 text-sm font-bold outline-none focus:border-gmi-blue focus:ring-2 focus:ring-gmi-blue/20" />
+              <input type="date" value={reserveForm.birthDate} onChange={(e) => setReserveForm({ ...reserveForm, birthDate: e.target.value })} className="rounded-2xl border border-slate-200 bg-slate-50 px-4 py-3 text-sm font-bold outline-none focus:border-gmi-blue focus:ring-2 focus:ring-gmi-blue/20" />
+            </div>
+            <button type="button" disabled={!canReserve} onClick={saveReservation} className={`mt-4 w-full rounded-2xl px-6 py-4 text-sm font-black shadow-xl transition ${canReserve ? "bg-gradient-to-r from-gmi-blue to-gmi-blueDark text-white shadow-gmi-blue/20 hover:scale-[1.01]" : "cursor-not-allowed bg-slate-200 text-slate-400 shadow-none"}`}>
+              Confirmar reserva
+            </button>
+          </div>
+        </section>
+      )}
+
       {/* ── VEHICLE SELECTOR ── */}
-      <section className="relative mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+      <section className={`relative mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 ${showReserve ? "mt-6" : ""}`}>
         <div className="-mt-10 overflow-hidden rounded-[2rem] bg-white/90 p-4 shadow-card ring-1 ring-slate-200/70 backdrop-blur sm:p-5">
           <p className="mb-3 text-xs font-black uppercase tracking-[0.18em] text-slate-500">
             Selecione o veiculo
@@ -470,6 +522,26 @@ export default function ReservasPage() {
                       ? "Aguardando conclusao do servico"
                       : "Este veiculo esta disponivel para locacao"}
                   </p>
+                </div>
+              )}
+            </div>
+
+            <div className="mt-5 overflow-hidden rounded-[2rem] bg-white p-5 shadow-card ring-1 ring-slate-100 sm:p-6">
+              <div className="flex items-center justify-between gap-3">
+                <p className="text-xs font-black uppercase tracking-[0.18em] text-slate-500">Reservas rápidas</p>
+                <span className="rounded-full bg-gmi-orange/10 px-3 py-1 text-xs font-black text-gmi-orange">{selectedVehicleReservations.length}</span>
+              </div>
+              {selectedVehicleReservations.length === 0 ? (
+                <p className="mt-4 rounded-2xl bg-slate-50 p-4 text-sm font-bold text-slate-400 ring-1 ring-slate-100">Nenhuma reserva rápida para este veículo.</p>
+              ) : (
+                <div className="mt-4 space-y-3">
+                  {selectedVehicleReservations.map((reservation) => (
+                    <div key={reservation.id} className="rounded-2xl bg-orange-50 p-4 ring-1 ring-orange-100">
+                      <p className="font-black text-slate-950">{reservation.fullName}</p>
+                      <p className="mt-1 text-xs font-bold text-slate-500">{new Date(reservation.date + "T00:00:00").toLocaleDateString("pt-BR")} • {reservation.whatsapp}</p>
+                      <p className="mt-1 text-xs font-bold text-slate-500">CPF {reservation.cpf} • Nasc. {new Date(reservation.birthDate + "T00:00:00").toLocaleDateString("pt-BR")}</p>
+                    </div>
+                  ))}
                 </div>
               )}
             </div>
